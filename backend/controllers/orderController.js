@@ -1,4 +1,5 @@
 import orderModel from "../models/orderModel.js";
+import productModel from "../models/productModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from "stripe";
 
@@ -13,6 +14,43 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const placeOrder = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
+
+    // 1. Check stock for each item
+    for (const item of items) {
+      const product = await productModel.findById(item._id);
+      if (!product) {
+        return res.json({
+          success: false,
+          message: `Product not found: ${item.name}`,
+        });
+      }
+
+      const sizeIndex = product.sizes.findIndex((s) => s.size === item.size);
+      if (sizeIndex === -1) {
+        return res.json({
+          success: false,
+          message: `Size "${item.size}" not available for ${product.name}`,
+        });
+      }
+
+      const availableQty = product.sizes[sizeIndex].quantity;
+      if (availableQty < item.quantity) {
+        return res.json({
+          success: false,
+          message: `Only ${availableQty} items left for ${product.name} (${item.size})`,
+        });
+      }
+    }
+
+    // 2. Deduct stock now that all are valid
+    for (const item of items) {
+      const product = await productModel.findById(item._id);
+      const sizeIndex = product.sizes.findIndex((s) => s.size === item.size);
+      product.sizes[sizeIndex].quantity -= item.quantity;
+      product.markModified("sizes"); // 👈
+      await product.save();
+    }
+
 
     const orderData = {
       userId,
