@@ -194,6 +194,7 @@ const List = ({ token }) => {
                   <div>
                     <p className="mb-2">Product category</p>
                     <select
+                      value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full px-3 py-2"
                     >
@@ -206,6 +207,7 @@ const List = ({ token }) => {
                   <div>
                     <p className="mb-2">Sub category</p>
                     <select
+                      value={subCategory}
                       onChange={(e) => setSubCategory(e.target.value)}
                       className="w-full px-3 py-2"
                     >
