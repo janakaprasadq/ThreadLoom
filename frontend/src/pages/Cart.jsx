@@ -15,10 +15,16 @@ const Cart = () => {
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
           if (cartItems[items][item] > 0) {
+            // Prevent adding items to cart if quantities are not available
+            const productData = products.find((p) => p._id === items);
+            const sizeData = productData?.sizes?.find((s) => s.size === item);
+            const availableStock = sizeData?.quantity || 0;
+
             tempData.push({
               _id: items,
               size: item,
               quantity: cartItems[items][item],
+              availableStock,
             });
           }
         }
@@ -61,18 +67,16 @@ const Cart = () => {
                 </div>
               </div>
               <input
-                onChange={(e) =>
-                  e.target.value === "" || e.target.value === "0"
-                    ? null
-                    : updateQuantity(
-                        item._id,
-                        item.size,
-                        Number(e.target.value)
-                      )
-                }
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value >= 1 && value <= item.availableStock) {
+                    updateQuantity(item._id, item.size, value);
+                  }
+                }}
                 className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1"
                 type="number"
                 min={1}
+                max={item.availableStock}
                 defaultValue={item.quantity}
               />
               <img

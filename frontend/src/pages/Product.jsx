@@ -10,6 +10,7 @@ const Product = () => {
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
+  const [selectedSizeInfo, setSelectedSizeInfo] = useState(null);
 
   const fetchProductData = async () => {
     products.map((item) => {
@@ -65,7 +66,7 @@ const Product = () => {
           <p className="mt-5 text-gray-500 md:w-4/5">
             {productData.description}
           </p>
-          <div className="flex flex-col gap-4 my-8">
+          {/* <div className="flex flex-col gap-4 my-8">
             <p>Select Size</p>
             <div className="flex gap-2">
               {productData.sizes.map((item, index) => (
@@ -80,7 +81,64 @@ const Product = () => {
                 </button>
               ))}
             </div>
+          </div> */}
+
+          {/* <div className="flex flex-col gap-4 my-8">
+            <p>Select Size</p>
+            <div className="flex gap-2 flex-wrap">
+              {productData.sizes.map((item, index) => (
+                <button
+                  onClick={() => item.quantity > 0 && setSize(item.size)}
+                  className={`border py-2 px-4 bg-gray-100 ${
+                    item.size === size ? "border-orange-500" : ""
+                  } ${
+                    item.quantity === 0 ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  key={index}
+                  disabled={item.quantity === 0}
+                >
+                  {item.size} {item.quantity === 0 && "(Out of stock)"}
+                </button>
+              ))}
+            </div>
+          </div> */}
+
+          <div className="flex flex-col gap-4 my-8">
+            <p>Select Size</p>
+            <div className="flex gap-4 flex-wrap">
+              {productData.sizes.map((item, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <button
+                    onClick={() => {
+                      if (item.quantity > 0) {
+                        setSize(item.size);
+                        setSelectedSizeInfo(item);
+                      }
+                    }}
+                    className={`border py-2 px-4 bg-gray-100 text-sm rounded-md ${
+                      item.size === size ? "border-orange-500" : ""
+                    } ${
+                      item.quantity === 0 ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={item.quantity === 0}
+                  >
+                    {item.size}
+                  </button>
+                  {item.quantity === 0 && (
+                    <span className="text-xs text-red-500 mt-1">
+                      Out of stock
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            {selectedSizeInfo && (
+              <p className="text-sm text-gray-700 mt-2">
+                Available Quantity: {selectedSizeInfo.quantity}
+              </p>
+            )}
           </div>
+
           <button
             onClick={() => addToCart(productData._id, size)}
             className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"

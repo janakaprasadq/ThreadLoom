@@ -59,6 +59,7 @@ const listProduct = async (req, res) => {
   try {
     const products = await productModel.find({});
     res.json({ success: true, products });
+    console.log(products);
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -88,4 +89,47 @@ const singleProduct = async (req, res) => {
   }
 };
 
-export { listProduct, addProduct, removeProduct, singleProduct };
+// Function to update product
+const updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const {
+      name,
+      description,
+      price,
+      category,
+      subCategory,
+      sizes,
+      bestseller,
+    } = req.body;
+
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      productId,
+      {
+        name,
+        description,
+        price,
+        category,
+        subCategory,
+        sizes: typeof sizes === "string" ? JSON.parse(sizes || "[]") : sizes,
+        bestseller,
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Product updated",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { listProduct, addProduct, removeProduct, singleProduct, updateProduct };

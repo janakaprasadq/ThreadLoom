@@ -18,6 +18,25 @@ const Add = ({ token }) => {
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
 
+  const handleSizeToggle = (size) => {
+    setSizes((prev) => {
+      const found = prev.find((item) => item.size === size);
+      if (found) {
+        return prev.filter((item) => item.size !== size);
+      } else {
+        return [...prev, { size, quantity: 0 }];
+      }
+    });
+  };
+
+  const handleQuantityChange = (size, quantity) => {
+    setSizes((prev) =>
+      prev.map((item) =>
+        item.size === size ? { ...item, quantity: Number(quantity) } : item
+      )
+    );
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -29,6 +48,16 @@ const Add = ({ token }) => {
       formData.append("subCategory", subCategory);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
+
+      console.log(
+        name,
+        description,
+        price,
+        category,
+        subCategory,
+        bestseller,
+        sizes
+      );
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -181,94 +210,36 @@ const Add = ({ token }) => {
           </div>
         </div>
 
-        <div>
-          <p className="mb-2">Product Sizes</p>
-          <div className="flex gap-3">
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("S")
-                    ? prev.filter((item) => item !== "S")
-                    : [...prev, "S"]
-                )
-              }
-            >
-              <p
-                className={`${
-                  sizes.includes("S") ? "bg-pink-100" : "bg-slate-200"
-                } px-3 py-1 cursor-pointer`}
-              >
-                S
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("M")
-                    ? prev.filter((item) => item !== "M")
-                    : [...prev, "M"]
-                )
-              }
-            >
-              <p
-                className={`${
-                  sizes.includes("M") ? "bg-pink-100" : "bg-slate-200"
-                } px-3 py-1 cursor-pointer`}
-              >
-                M
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("L")
-                    ? prev.filter((item) => item !== "L")
-                    : [...prev, "L"]
-                )
-              }
-            >
-              <p
-                className={`${
-                  sizes.includes("L") ? "bg-pink-100" : "bg-slate-200"
-                } px-3 py-1 cursor-pointer`}
-              >
-                L
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("XL")
-                    ? prev.filter((item) => item !== "XL")
-                    : [...prev, "XL"]
-                )
-              }
-            >
-              <p
-                className={`${
-                  sizes.includes("XL") ? "bg-pink-100" : "bg-slate-200"
-                } px-3 py-1 cursor-pointer`}
-              >
-                XL
-              </p>
-            </div>
-            <div
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes("XXL")
-                    ? prev.filter((item) => item !== "XXL")
-                    : [...prev, "XXL"]
-                )
-              }
-            >
-              <p
-                className={`${
-                  sizes.includes("XXL") ? "bg-pink-100" : "bg-slate-200"
-                } px-3 py-1 cursor-pointer`}
-              >
-                XXL
-              </p>
-            </div>
+        <div className="w-full">
+          <p className="mb-2">Sizes & Quantities</p>
+          <div className="flex flex-col gap-2">
+            {["S", "M", "L", "XL", "XXL"].map((size) => {
+              const selected = sizes.find((s) => s.size === size);
+              return (
+                <div key={size} className="flex items-center gap-3">
+                  <div
+                    onClick={() => handleSizeToggle(size)}
+                    className={`cursor-pointer px-3 py-1 ${
+                      selected ? "bg-pink-100" : "bg-slate-200"
+                    }`}
+                  >
+                    {size}
+                  </div>
+                  {selected && (
+                    <input
+                      type="number"
+                      className="px-2 py-1 border rounded w-24"
+                      min={0}
+                      placeholder="Qty"
+                      value={selected.quantity}
+                      onChange={(e) =>
+                        handleQuantityChange(size, e.target.value)
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

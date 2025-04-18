@@ -45,8 +45,13 @@ const ShopContextProvider = (props) => {
           { headers: { token } }
         );
       } catch (error) {
-        console.log(error);
-        toast.error(error.message);
+        if (error.response && error.response.status === 400) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Something went wrong while adding to cart");
+          console.error(error); // Only log unexpected errors
+        }
+        getUserCart(token);
       }
     }
   };
