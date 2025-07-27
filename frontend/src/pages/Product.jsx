@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import { ShopContext } from "../context/ShopContext";
+import StarRating from "../components/StartRating";
+import { backendUrl } from "../../../admin/src/App";
 
 const Product = () => {
   const { productId } = useParams();
@@ -11,19 +13,33 @@ const Product = () => {
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
   const [selectedSizeInfo, setSelectedSizeInfo] = useState(null);
+  const [activeTab, setActiveTab] = useState("description");
+  const [reviews, setReviews] = useState([]);
 
   const fetchProductData = async () => {
     products.map((item) => {
       if (item._id === productId) {
         setProductData(item);
         setImage(item.image[0]);
+
         return null;
       }
     });
   };
 
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch(backendUrl + `/api/review/${productId}`);
+      const data = await res.json();
+      setReviews(data.reviews);
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
+    }
+  };
+
   useEffect(() => {
     fetchProductData();
+    fetchReviews();
   }, [productId, products]);
 
   return productData ? (
@@ -52,12 +68,13 @@ const Product = () => {
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{productData.name}</h1>
           <div className="flex items-center gap-1 mt-2">
-            <img className="w-3 5" src={assets.star_icon} alt="" />
-            <img className="w-3 5" src={assets.star_icon} alt="" />
-            <img className="w-3 5" src={assets.star_icon} alt="" />
-            <img className="w-3 5" src={assets.star_icon} alt="" />
-            <img className="w-3 5" src={assets.star_dull_icon} alt="" />
-            <p className="pl-2">(122)</p>
+            <div className="pl-2 flex items-center gap-2">
+              <StarRating rating={productData.averageRating || 0} />
+              <p className="text-sm text-gray-600">
+                ({productData.reviewCount || 0} review
+                {productData.reviewCount === 1 ? "" : "s"})
+              </p>
+            </div>
           </div>
           <p className="mt-5 text-3xl font-medium">
             {currency}
@@ -156,22 +173,55 @@ const Product = () => {
 
       {/*---------Description and Review Section ----------------  */}
       <div className="mt-20">
-        <div className="flex">
-          <b className="border px-5 py-3 text-sm">Description</b>
-          <p className="border px-5 py-3 text-sm">Reviews (122)</p>
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab("description")}
+            className={`px-5 py-3 text-sm font-semibold ${
+              activeTab === "description"
+                ? "border-b-2 border-black"
+                : "text-gray-500"
+            }`}
+          >
+            Description
+          </button>
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`px-5 py-3 text-sm font-semibold ${
+              activeTab === "reviews"
+                ? "border-b-2 border-black"
+                : "text-gray-500"
+            }`}
+          >
+            Reviews ({productData.reviewCount})
+          </button>
         </div>
-        <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
-            quae nemo voluptate ea. Sit nam modi fugiat commodi non in! Neque
-            odio enim corrupti eligendi magni expedita consequatur, illo dolor!
-          </p>
-          <p>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odio
-            veritatis iusto, amet dolor quos, illo saepe laboriosam aliquam
-            earum non magnam velit quia quibusdam alias sint eveniet recusandae.
-            Porro, iusto.
-          </p>
+
+        <div className="border px-6 py-6 text-sm text-gray-600">
+          {activeTab === "description" && (
+            <div className="flex flex-col gap-4">
+              <p>{productData.description}</p>
+            </div>
+          )}
+
+          {activeTab === "reviews" && (
+            <div className="flex flex-col gap-4">
+              {reviews.length > 0 ? (
+                reviews.map((review, index) => (
+                  <div key={index} className="border-b pb-4 mb-4">
+                    <p className="text-base font-semibold">
+                      {review.userId?.name || review.userName || "Anonymous"}
+                    </p>
+                    <StarRating rating={review.rating || 0} />
+                    <p className="text-sm text-gray-700 mt-1">
+                      {review.comment}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p>No reviews yet.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

@@ -16,6 +16,7 @@ const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState("");
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   const addToCart = async (itemId, size) => {
     if (!size) {
@@ -138,20 +139,38 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const getUserInfo = async (token) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/user/info",
+        {},
+        { headers: { token } }
+      );
+      if (response.data.success) {
+        setUser(response.data.user); // user object should contain _id
+      }
+    } catch (error) {
+      console.error("Failed to fetch user info", error);
+    }
+  };
+
   useEffect(() => {
     getProductsData();
+    getUserInfo(token);
   }, []);
 
   useEffect(() => {
     if (!token && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
       getUserCart(localStorage.getItem("token"));
+      getUserInfo(localStorage.getItem("token"));
     }
   }, []);
 
   useEffect(() => {
     if (token) {
       getUserCart(token);
+      getUserInfo(token);
     }
   }, [token]);
 
@@ -173,6 +192,7 @@ const ShopContextProvider = (props) => {
     backendUrl,
     setToken,
     token,
+    user,
   };
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
