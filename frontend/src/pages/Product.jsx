@@ -5,8 +5,6 @@ import RelatedProducts from "../components/RelatedProducts";
 import { ShopContext } from "../context/ShopContext";
 import StarRating from "../components/StartRating";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
 const Product = () => {
   const { productId } = useParams();
   const { products, currency, addToCart } = useContext(ShopContext);
@@ -16,6 +14,8 @@ const Product = () => {
   const [selectedSizeInfo, setSelectedSizeInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const [reviews, setReviews] = useState([]);
+
+  const { backendUrl } = useContext(ShopContext);
 
   const fetchProductData = async () => {
     products.map((item) => {
