@@ -4,7 +4,8 @@ import { assets } from "../assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
 import { ShopContext } from "../context/ShopContext";
 import StarRating from "../components/StartRating";
-import { backendUrl } from "../../../admin/src/App";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Product = () => {
   const { productId } = useParams();
