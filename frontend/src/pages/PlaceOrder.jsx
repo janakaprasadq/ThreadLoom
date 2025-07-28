@@ -8,6 +8,7 @@ import axios from "axios";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
+  const [loading, setLoading] = useState(false);
   const {
     navigate,
     backendUrl,
@@ -42,7 +43,7 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-
+    setLoading(true); // show spinner
     try {
       let orderItems = [];
 
@@ -102,8 +103,19 @@ const PlaceOrder = () => {
     } catch (error) {
       console.log(error);
       toast.error(response.data.message);
+    } finally {
+      setLoading(false); // hide spinner
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-700">Placing your order...</p>
+      </div>
+    );
+  }
 
   return (
     <form
