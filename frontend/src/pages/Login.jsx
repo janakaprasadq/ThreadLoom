@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login");
@@ -10,6 +11,7 @@ const Login = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -69,7 +71,7 @@ const Login = () => {
           value={name}
           type="text"
           className="w-full px-3 py-2 border border-gray-800"
-          placeholder="Name"
+          placeholder="Name: ex - John Doe"
           required
         />
       )}
@@ -81,16 +83,31 @@ const Login = () => {
         placeholder="Email"
         required
       />
-      <input
-        onChange={(e) => setPassword(e.target.value)}
-        value={password}
-        type="password"
-        className="w-full px-3 py-2 border border-gray-800"
-        placeholder="Password"
-        required
-      />
+      {/* 👇 Modified password field with toggle visibility feature */}
+      <div className="relative w-full">
+        <input
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+          type={showPassword ? "text" : "password"} // 👈 Toggle between text and password
+          className="w-full px-3 py-2 border border-gray-800 pr-10"
+          placeholder="Password"
+          required
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)} // 👈 Toggle visibility
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-600"
+        >
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      </div>
       <div className="w-full flex justify-between text-sm mt-[-8px]">
-        <p className="cursor-pointer">Forgot your password?</p>
+        <p
+          onClick={() => navigate("/forgot-password")}
+          className="cursor-pointer text-blue-500 hover:underline"
+        >
+          Forgot your password?
+        </p>
         {currentState === "Login" ? (
           <p
             onClick={() => setCurrentState("Sign Up")}
