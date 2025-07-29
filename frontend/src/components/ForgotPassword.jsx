@@ -8,9 +8,11 @@ const ForgotPassword = () => {
   const { backendUrl } = useContext(ShopContext);
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(
         `${backendUrl}/api/user/forgot-password`,
@@ -24,8 +26,19 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       toast.error("Failed to send reset link." + error.message);
+    } finally {
+      setLoading(false); // hide spinner
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-700">Sending reset link...</p>
+      </div>
+    );
+  }
 
   return (
     <form

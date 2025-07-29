@@ -98,6 +98,7 @@ const Orders = ({ token }) => {
                 </p>
               </div>
               <p>{order.address.phone}</p>
+              <p>{order.address.email}</p>
             </div>
             <div>
               <p className="text-sm sm:text-[15px]">
